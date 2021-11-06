@@ -1,22 +1,42 @@
-import { Button, Container, Grid, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Button,
+  CircularProgress,
+  Container,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation, useHistory } from "react-router-dom";
 import login from "../../images/login.png";
-const Login = () => {
+import useAuth from "../hook/useAuth";
 
+
+
+const Login = () => {
   const [loginData, setLoginData] = useState({});
+  const { user, error, loginUser, signInWithGoogle, isLoading } = useAuth();
+  const location = useLocation();
+  const history = useHistory();
 
   const handleOnChange = (e) => {
     const field = e.target.name;
     const value = e.target.value;
-    const newLoginData = { ...loginData, [field]: value };
+    const newLoginData = { ...loginData };
+    newLoginData[field] = value;
     setLoginData(newLoginData);
   };
-  console.log(loginData);
+
   const handleLoginSubmit = (e) => {
-    alert("Login Successful");
+    loginUser(loginData.email, loginData.password, location, history);
     e.preventDefault();
   };
+
+  const handleGoogleSignIn = () => {
+    signInWithGoogle(location, history);
+  };
+
   return (
     <Container>
       <Grid container spacing={2}>
@@ -30,7 +50,7 @@ const Login = () => {
               id="standard-basic"
               label="Your Email"
               name="email"
-              onChange={handleOnChange}
+              onBlur={handleOnChange}
               variant="standard"
             />
             <TextField
@@ -39,7 +59,7 @@ const Login = () => {
               label="Password"
               type="password"
               name="password"
-              onChange={handleOnChange}
+              onBlur={handleOnChange}
               variant="standard"
               autoComplete="current-password"
             />
@@ -53,7 +73,18 @@ const Login = () => {
             <NavLink style={{ textDecoration: "none" }} to="/register">
               <Button variant="text">New User? Please Register</Button>
             </NavLink>
+            {isLoading && <CircularProgress />}
+            {user?.email && (
+              <Alert severity="success">
+                Login Successfully. Congratulation !
+              </Alert>
+            )}
+            {error && <Alert severity="error">{error}</Alert>}
           </form>
+          <p>-------------------------------------</p>
+          <Button onClick={handleGoogleSignIn} variant="contained">
+            Google Sign In
+          </Button>
         </Grid>
         <Grid item xs={12} md={6}>
           <img src={login} style={{ width: "100%" }} alt="" />
