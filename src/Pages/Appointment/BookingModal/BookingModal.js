@@ -20,7 +20,13 @@ const style = {
   p: 4,
 };
 
-const BookingModal = ({ open, handleClose, booking, date ,setBookingSuccess}) => {
+const BookingModal = ({
+  open,
+  handleClose,
+  booking,
+  date,
+  setBookingSuccess,
+}) => {
   const { name, time } = booking;
   const { user } = useAuth();
 
@@ -49,18 +55,18 @@ const BookingModal = ({ open, handleClose, booking, date ,setBookingSuccess}) =>
       date: date.toDateString(),
     };
 
-    fetch("http://localhost:5000/appointments", {
+    fetch("https://pure-island-36820.herokuapp.com/appointments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(appointment),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setBookingSuccess(true);
         handleClose();
-      }) 
+      });
     e.preventDefault();
   };
 

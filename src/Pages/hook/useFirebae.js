@@ -8,6 +8,7 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged,
+  getIdToken,
 } from "firebase/auth";
 import { useEffect, useState } from "react";
 
@@ -17,10 +18,12 @@ const useFirebase = () => {
   const [user, setUser] = useState({});
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [admin, setAdmin] = useState(false);
+  const [token, setToken] = useState("");
   const auth = getAuth();
   const googleProvider = new GoogleAuthProvider();
 
-  const registerUser = (email, password,name, history) => {
+  const registerUser = (email, password, name, history) => {
     setIsLoading(true);
     setError("");
     createUserWithEmailAndPassword(auth, email, password)
@@ -28,18 +31,16 @@ const useFirebase = () => {
         const newUser = { email, displayName: name };
         setUser(newUser);
         //save user to database
-        saveUser(email, name, 'POST');
+        saveUser(email, name, "POST");
         //send name to firebase after createtion
         updateProfile(auth.currentUser, {
-          displayName: name
+          displayName: name,
         })
-          .then(() => {
-            
-          })
+          .then(() => {})
           .catch((error) => {
             setError(error.message);
           });
-        history.replace('/');
+        history.replace("/");
       })
       .catch((err) => {
         setError(err.message);
@@ -47,8 +48,6 @@ const useFirebase = () => {
       })
       .finally(() => setIsLoading(false));
   };
-
-  
 
   const loginUser = (email, password, location, history) => {
     setIsLoading(true);
@@ -68,11 +67,11 @@ const useFirebase = () => {
     setIsLoading(true);
     signInWithPopup(auth, googleProvider)
       .then((result) => {
-        saveUser(result.user.email, result.user.displayName, 'PUT');
+        saveUser(result.user.email, result.user.displayName, "PUT");
         setError("");
-         const destination = location?.state?.from || "/";
-         history.replace(destination);
-       })
+        const destination = location?.state?.from || "/";
+        history.replace(destination);
+      })
       .catch((error) => {
         setError(error.message);
       })
@@ -83,13 +82,22 @@ const useFirebase = () => {
     const unSubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
+        getIdToken(user).then((idToken) => {
+          setToken(idToken);
+        });
       } else {
         setUser({});
       }
       setIsLoading(false);
     });
     return () => unSubscribe;
-  }, []);
+  }, [auth]);
+
+  useEffect(() => {
+    fetch(`https://pure-island-36820.herokuapp.com/users/${user.email}`)
+      .then((res) => res.json())
+      .then((data) => setAdmin(data.admin));
+  }, [user.email]);
 
   const logOut = () => {
     setIsLoading(true);
@@ -102,21 +110,21 @@ const useFirebase = () => {
       .finally(() => setIsLoading(false));
   };
 
-
   const saveUser = (email, displayName, method) => {
     const user = { email, displayName };
-    fetch("http://localhost:5000/users", {
+    fetch("https://pure-island-36820.herokuapp.com/users", {
       method: method,
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(user),
     }).then();
-}
-
+  };
 
   return {
     user,
+    admin,
+    token,
     error,
     isLoading,
     registerUser,
