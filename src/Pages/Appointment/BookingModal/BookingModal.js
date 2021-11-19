@@ -24,6 +24,7 @@ const BookingModal = ({
   open,
   handleClose,
   booking,
+  price,
   date,
   setBookingSuccess,
 }) => {
@@ -51,6 +52,7 @@ const BookingModal = ({
     const appointment = {
       ...bookingInfo,
       time,
+      price,
       serviceName: name,
       date: date.toDateString(),
     };

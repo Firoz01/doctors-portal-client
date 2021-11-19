@@ -20,6 +20,9 @@ const Login = () => {
   const location = useLocation();
   const history = useHistory();
 
+  console.log(location);
+  console.log(history);
+
   const handleOnChange = (e) => {
     const field = e.target.name;
     const value = e.target.value;

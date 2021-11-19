@@ -30,6 +30,12 @@ const Navigation = () => {
             </Typography>
             <Link
               style={{ textDecoration: "none", color: "white" }}
+              to="/"
+            >
+              <Button color="inherit">Home</Button>
+            </Link>
+            <Link
+              style={{ textDecoration: "none", color: "white" }}
               to="/appointment"
             >
               <Button color="inherit">Appointment</Button>
